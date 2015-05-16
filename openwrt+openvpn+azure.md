@@ -7,7 +7,7 @@
 * 一台 OpenWrt 支持的**[路由器](http://wiki.openwrt.org/zh-cn/toh/start)**。需要把路由器的 firmware 刷成 OpenWrt。如果你家现在用的路由器不在这个被支持的列表中，那就得去买个被支持的了。我用的是 TP-Link TL-WR740N v4 硬件版本，从淘宝上买的，连运费一共50元左右。你可以要求淘宝卖家帮你把路由器刷好，超级方便。
 
 ## 安装 OpenVPN 服务器
-在 Azure 上创建虚机后，配置两个 Endpoints： TCP 22，UDP 1194。
+在 Azure 上创建虚机后，配置两个 Endpoints: **TCP 22**，**UDP 1194**。
 ![azure-endpoints](https://raw.githubusercontent.com/martincai/blogs/master/resources/azure-endpoints.png)
 
 SSH 到虚机上，安装 OpenVPN 和 Easy RSA。
@@ -284,11 +284,78 @@ Approximate round trip times in milli-seconds:
 简单介绍一下我的路由器。我用的是中国版的 **TP-Link TL-WR740N v4**，说是 v4，但实际上用的芯片是和国际版 v3 用的一样 – AR7240。所以刷机是必须选择 OpenWrt 针对 TL-WR740N v3 的系统。更重要的一点是一定要用 **JFFS2** 文件格式的系统，因为那是可读写的。不要用 SquashFS 文件格式。建议选择路由器时，除了比对被支持的**[路由器型号](http://wiki.openwrt.org/zh-cn/toh/start)**，还要比对芯片型号。顺便说一下，我试过刷 dd-wrt，它的系统认定了我这个路由器只有 4MB 的 Flash，所以不让我开启 JFFS2 mount 功能，即使路由器已经被改装为 8MB 的 Flash 也没用。
   
 现在，我假设你已经有了一台运行 OpenWrt 系统的路由器，并且打开了 SSH 管理功能。
+![openwrt-ssh](https://raw.githubusercontent.com/martincai/blogs/master/resources/openwrt-ssh.png)
+用 root 账户通过 SSH 连接到路由器，开始安装和配置。
 ```bash
+opkg update
+opkg install openvpn
+mv /etc/config/openvpn /etc/config/openvpn_old
 ```
+我看网上有建议安装 openvpn-openssl 这个包，可我这个版本的系统貌似没有这个包，用 openvpn 也挺好。
+  
+手动为 OpenVPN 创建一个新的端口，给它取个名字。
+```bash
+cat >> /etc/config/network << EOF
+config interface 'MY_OPENVPN'
+    option proto 'none'
+        option ifname 'tun0'
+EOF
+/etc/init.d/network restart
+```
+这时网络会断一下，重新连上后登陆管理界面，可以看到这个新建的端口。
+![openwrt-interfaces](https://raw.githubusercontent.com/martincai/blogs/master/resources/openwrt-interfaces.png)
+然后，需要为 OpenVPN 新建一个 Firewall Zone。指定让所有连接到路由器的设备都走到 OpenVPN 的端口。
+```bash
+cat >> /etc/config/firewall << EOF
+config zone
+    option name 'OPENVPN_FW'
+    option input 'REJECT'
+    option output 'ACCEPT'
+    option forward 'REJECT'
+    option masq '1'
+    option mtu_fix '1'
+    option network 'MY_OPENVPN'
 
-```bash
+config forwarding                               
+        option dest 'OPENVPN_FW'                    
+        option src 'lan' 
+EOF
+/etc/init.d/network restart
+/etc/init.d/firewall restart
 ```
-
+网络再会断一下，重新连上后登陆管理见面，可以看到这个新建的 Firewall Zone。
+![openwrt-firewall](https://raw.githubusercontent.com/martincai/blogs/master/resources/openwrt-firewall.png)
+现在，将刚才在 Windows 上做测试时创建的 client1.ovpn 文件转成 Unix 格式，然后上传到路由器。假设路由器地址是 192.168.2.1。
 ```bash
+dos2unix client1.ovpn
+scp client1.ovpn root@192.168.2.1:/etc/openvpn/
 ```
+终于可以在路由器上开启 OpenVPN 了。
+```bash
+openvpn --cd /etc/openvpn --config /etc/openvpn/client1.ovpn &
+```
+如果一切顺利，你可以看到下面这些日志信息。将你的手机或者电脑练到路由器上试试吧，应该已经在墙外了。恭喜你！
+```bash
+Fri May 15 22:53:59 2015 TUN/TAP device tun0 opened
+Fri May 15 22:53:59 2015 TUN/TAP TX queue length set to 100
+Fri May 15 22:53:59 2015 /sbin/ifconfig tun0 10.8.0.10 pointopoint 10.8.0.9 mtu 1500
+Fri May 15 22:53:59 2015 /sbin/route add -net 168.63.213.180 netmask 255.255.255.255 gw 192.168.1.1
+Fri May 15 22:53:59 2015 /sbin/route add -net 0.0.0.0 netmask 128.0.0.0 gw 10.8.0.9
+Fri May 15 22:53:59 2015 /sbin/route add -net 128.0.0.0 netmask 128.0.0.0 gw 10.8.0.9
+Fri May 15 22:53:59 2015 /sbin/route add -net 10.8.0.0 netmask 255.255.255.0 gw 10.8.0.9
+Fri May 15 22:53:59 2015 Initialization Sequence Completed
+```
+如果需要设置路由器启动时自动开启 OpenVPN，将命令行添加到 /etc/rc.local 文件里。
+```bash
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+openvpn --cd /etc/openvpn --config /etc/openvpn/client1.ovpn &
+exit 0
+```
+如果感觉网速太慢，可以尝试一下同时在服务器端的 server.conf 文件和客户端的 client1.ovpn 文件里插入下面的配置。
+```bash
+sndbuf 0
+rcvbuf 0
+```
+  
+**GOOD LUCK!!!**

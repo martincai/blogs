@@ -42,7 +42,7 @@ cp id_rsa.pub authorized_keys
   
 在你的 C:\Users\用户名\ 下建一个新的文件夹 .ssh
   
-在 C:\Users\用户名\.ssh 下建一个新文件，用 Notepad 就可以，保存为 config （注意：没有 .txt 后缀）
+在 C:\Users\用户名\\.ssh 下建一个新文件，用 Notepad 就可以，保存为 config （注意：没有 .txt 后缀）
   
 将以下内容粘贴在 config 里面并保存
 ```bash
@@ -58,7 +58,7 @@ Host proxy-global
   User azureuser
   ProxyCommand ssh -q proxy-china nc %h %p
 ```
-现在让我们试一下吧。打开 Git Bash，cd到 C:\Users\用户名\\.ssh 下面，执行以下命令：
+现在让我们试一下吧。打开 Git Bash，cd 到 C:\Users\用户名\\.ssh 下面，执行以下命令：
 ```bash
 ssh -D 127.0.0.1:7070 azureuser@proxy-global -i id_rsa
 ```
@@ -69,3 +69,5 @@ ssh -D 127.0.0.1:7070 azureuser@proxy-global -i id_rsa
 ![switchysharp](https://raw.githubusercontent.com/martincai/blogs/master/resources/switchysharp.png)
   
 ![chrome-switchysharp](https://raw.githubusercontent.com/martincai/blogs/master/resources/chrome-switchysharp.png)
+  
+这种配置比较稳定。在 YouTube 上看高清视频没有问题。

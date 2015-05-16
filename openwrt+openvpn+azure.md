@@ -161,7 +161,7 @@ sudo service openvpn start
 sudo service openvpn status
  * VPN 'server' is running
 ```
-运行 ifconfig 除了可以看到 eth0 和 lo 两个网口，应该还应该看到 tun0，这个就是 OpenVPN 用的 tunnel。
+运行 `ifconfig` 除了可以看到 eth0 和 lo 两个网口，应该还应该看到 tun0，这个就是 OpenVPN 用的 tunnel。
 ```bash
 tun0      Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00
           inet addr:10.8.0.1  P-t-P:10.8.0.2  Mask:255.255.255.255
@@ -178,7 +178,7 @@ iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
 ```
 
 ## 测试 OpenVPN 连接
-建议在 Windows 上装个 [OpenVPN Client](https://openvpn.net/index.php/open-source/downloads.html) 测试一下，也方便调试。
+建议在 Windows 上装个 **[OpenVPN Client](https://openvpn.net/index.php/open-source/downloads.html)** 测试一下，也方便调试。
   
 首先，从服务器上把客户端的证书和密钥文件，以及一个客户端配置文件下载下来。
 ```bash
@@ -240,7 +240,7 @@ comp-lzo
 redirect-gateway def1
 verb 3
 ```
-用管理员身份运行 OpenVPN GUI，在菜单里选 Connect。如果连接不成功，它会不断重试。那就得看看日志文件里是怎么说的了。在命令行里运行 ipconfig /all，应该可以看到 OpenVPN 的 TAP-Windows Adapter。
+用管理员身份运行 OpenVPN GUI，在菜单里选 Connect。如果连接不成功，它会不断重试。那就得看看日志文件里是怎么说的了。在命令行里运行 `ipconfig /all`，应该可以看到 OpenVPN 的 TAP-Windows Adapter。
 ```bash
 Ethernet adapter OpenVPN:
 
@@ -263,7 +263,7 @@ Ethernet adapter OpenVPN:
                                        8.8.8.4
    NetBIOS over Tcpip. . . . . . . . : Disabled
 ```
-试试 ping 10.8.0.1 是否成功。
+试试 `ping 10.8.0.1` 是否成功。
 ```bash
 Pinging 10.8.0.1 with 32 bytes of data:
 Reply from 10.8.0.1: bytes=32 time=116ms TTL=64
@@ -276,9 +276,14 @@ Ping statistics for 10.8.0.1:
 Approximate round trip times in milli-seconds:
     Minimum = 116ms, Maximum = 117ms, Average = 116ms
 ```
-打开浏览器，访问类似 [https://www.whatismyip.com](https://www.whatismyip.com) 的网站，看看你现在的 IP 地址是否已经在墙外了。
+打开浏览器，访问类似 **[https://www.whatismyip.com](https://www.whatismyip.com)** 的网站，看看你现在的 IP 地址是否已经在墙外了。
   
 恭喜你！ OpenVPN 测试成功。
+
+## 配置 OpenWrt 路由器
+简单介绍一下我的路由器。我用的是中国版的 **TP-Link TL-WR740N v4**，说是 v4，但实际上用的芯片是和国际版 v3 用的一样 – AR7240。所以刷机是必须选择 OpenWrt 针对 TL-WR740N v3 的系统。更重要的一点是一定要用 **JFFS2** 文件格式的系统，因为那是可读写的。不要用 SquashFS 文件格式。建议选择路由器时，除了比对被支持的**[路由器型号](http://wiki.openwrt.org/zh-cn/toh/start)**，还要比对芯片型号。顺便说一下，我试过刷 dd-wrt，它的系统认定了我这个路由器只有 4MB 的 Flash，所以不让我开启 JFFS2 mount 功能，即使路由器已经被改装为 8MB 的 Flash 也没用。
+  
+现在，我假设你已经有了一台运行 OpenWrt 系统的路由器，并且打开了 SSH 管理功能。
 ```bash
 ```
 

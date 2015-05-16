@@ -1,5 +1,5 @@
 # 双 Azure 虚机翻墙
-现在翻墙是每个挨踢人的基本技能。市面上翻墙软件和方法很多，今天就八一下用SSH配上双Azure虚机来翻。这样的好处是：（1）不需要在服务器端装任何东西 （2）双 Azure 虚机，一个在国内，一个在国外，你直接连的是国内 IP 地址，不会被墙而且速度快。Azure 国内和国外的数据中心之间的连接是相当稳定的。
+现在翻墙是每个挨踢人的基本技能。市面上翻墙软件和方法很多，今天就八一下用 SSH 配上双 Azure 虚机来翻。这样的好处是：（1）不需要在服务器端装任何东西 （2）双 Azure 虚机，一个在国内，一个在国外，你直接连的是国内 IP 地址，不会被墙而且速度快。Azure 国内和国外的数据中心之间的连接是相当稳定的。
   
 ![azure-ssh-infra](https://raw.githubusercontent.com/martincai/blogs/master/resources/azure-ssh-infra.png)
   

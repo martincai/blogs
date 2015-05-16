@@ -17,34 +17,34 @@
 * 国内： azurevm-china.chinacloudapp.cn
 * 国外： azurevm-global.cloudapp.net
   
-**第二步：安装SSH工具，PuTTY 挺好用，我更喜欢用 [Git Bash](http://git-scm.com/downloads)**
+**第二步：安装 SSH 工具，PuTTY 挺好用，我更喜欢用 [Git Bash](http://git-scm.com/downloads)**
   
 **第三步：创建 RSA key**
   
-1. SSH 到其中一台虚机上，随便哪台都可以，然后跑以下命令。
+SSH 到其中一台虚机上，随便哪台都可以，然后跑以下命令。
 ```bash
 cd ~/.ssh
 ssh-keygen –t rsa
 ```
 ![create-idrsa](https://raw.githubusercontent.com/martincai/blogs/master/resources/create-idrsa.png)
   
-2. 将 id_rsa.pub (public key) 复制到 authorized_keys
+将 id_rsa.pub (public key) 复制到 authorized_keys
 ```bash
 cp id_rsa.pub authorized_keys
 ```
 ![copy-key](https://raw.githubusercontent.com/martincai/blogs/master/resources/copy-authkeys.png)
   
-3. 用 SCP 把 id_rsa.pub (public key) 传到另一台虚机上，然后在那里也将 public key 复制的到相同地方 ~/.ssh 下的 authorized_keys
+用 SCP 把 id_rsa.pub (public key) 传到另一台虚机上，然后在那里也将 public key 复制的到相同地方 ~/.ssh 下的 authorized_keys
   
-4. 用 SCP 把 id_rsa (private key) 传到本地PC上。
+用 SCP 把 id_rsa (private key) 传到本地PC上。
   
 **第四步：配置本地SSH配置**
   
-1. 在你的 C:\Users\用户名\ 下建一个新的文件夹 .ssh
+在你的 C:\Users\用户名\ 下建一个新的文件夹 .ssh
   
-2. 在 C:\Users\用户名\.ssh 下建一个新文件，用 Notepad 就可以，保存为 config （注意：没有 .txt 后缀）
+在 C:\Users\用户名\.ssh 下建一个新文件，用 Notepad 就可以，保存为 config （注意：没有 .txt 后缀）
   
-3. 将以下内容粘贴在 config 里面并保存
+将以下内容粘贴在 config 里面并保存
 ```bash
 Host proxy-china
   HostName azurevm-china.chinacloudapp.cn

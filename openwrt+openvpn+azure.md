@@ -1,5 +1,5 @@
 # OpenWrt + OpenVPN + Azure = 会翻墙的路由器
-作为一个挨踢人，翻墙是基本技能，因为有太多好的技术资料在墙外了。当然，翻墙有很多方法，你喜欢用那种都可以。我原本一直在 PC 上通过 SSH 打隧道，有兴趣的话请参考我之前写的 双 Azure 虚机翻墙，看 YouTube 的 720P 视频绝对没问题。接下去的问题是，家里的那些手机们和其它移动端呢？难道要在每个端上都做配置吗？何不直接把家里的路由器翻出墙，这样家里所有的端都可以享受福利了。
+作为一个挨踢人，翻墙是基本技能，因为有太多好的技术资料在墙外了。当然，翻墙有很多方法，你喜欢用那种都可以。我原本一直在 PC 上通过 SSH 打隧道，有兴趣的话请参考我之前写的 **[双 Azure 虚机翻墙](https://github.com/martincai/blogs/blob/master/azure-2vm-ssh.md)**，看 YouTube 的 720P 视频绝对没问题。接下去的问题是，家里的那些手机们和其它移动端呢？难道要在每个端上都做配置吗？何不直接把家里的路由器翻出墙，这样家里所有的端都可以享受福利了。
   
 ![architecture](https://raw.githubusercontent.com/martincai/blogs/master/resources/openwrt-infra.png)
   

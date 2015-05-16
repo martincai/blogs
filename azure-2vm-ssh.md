@@ -1,9 +1,9 @@
 # 双 Azure 虚机翻墙
-现在翻墙是每个挨踢人的基本技能。市面上翻墙软件和方法很多，今天就八一下用SSH配上双Azure虚机来翻。这样的好处是：（1）不需要在服务器端装任何东西 （2）双 Azure 虚机，一个在国内，一个在国外，你直接连的是国内IP地址，不会被墙而且速度快。Azure 国内和国外的数据中心之间的连接是相当稳定的。
+现在翻墙是每个挨踢人的基本技能。市面上翻墙软件和方法很多，今天就八一下用SSH配上双Azure虚机来翻。这样的好处是：（1）不需要在服务器端装任何东西 （2）双 Azure 虚机，一个在国内，一个在国外，你直接连的是国内 IP 地址，不会被墙而且速度快。Azure 国内和国外的数据中心之间的连接是相当稳定的。
   
 ![azure-ssh-infra](https://raw.githubusercontent.com/martincai/blogs/master/resources/azure-ssh-infra.png)
   
-需要的资源：一台虚机在国内Azure上（中国北部或东部都可以），一台虚机在国外 Azure 上（East Asia 数据中心离我们最近）。虚机的配置最低配 A0 就可以，我一直用的是 Ubuntu 14.04 LTS。
+需要的资源：一台虚机在国内 Azure 上（中国北部或东部都可以），一台虚机在国外 Azure 上（East Asia 数据中心离我们最近）。虚机的配置最低配 A0 就可以，我一直用的是 Ubuntu 14.04 LTS。
   
 **第一步：在 Azure 上创建虚机，分别在国内的和国外的 Azure 各建一台**
   
@@ -58,7 +58,7 @@ Host proxy-global
   User azureuser
   ProxyCommand ssh -q proxy-china nc %h %p
 ```
-现在让我们试一下吧。打开 Git Bash，cd到 C:\Users\用户名\.ssh 下面，执行以下命令：
+现在让我们试一下吧。打开 Git Bash，cd到 C:\Users\用户名\\.ssh 下面，执行以下命令：
 ```bash
 ssh -D 127.0.0.1:7070 azureuser@proxy-global -i id_rsa
 ```

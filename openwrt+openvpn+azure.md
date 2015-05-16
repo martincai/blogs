@@ -1,11 +1,12 @@
 # OpenWrt + OpenVPN + Azure = 会翻墙的路由器
 作为一个挨踢人，翻墙是基本技能，因为有太多好的技术资料在墙外了。当然，翻墙有很多方法，你喜欢用那种都可以。我原本一直在 PC 上通过 SSH 打隧道，有兴趣的话请参考我之前写的 双 Azure 虚机翻墙，看 YouTube 的 720P 视频绝对没问题。接下去的问题是，家里的那些手机们和其它移动端呢？难道要在每个端上都做配置吗？何不直接把家里的路由器翻出墙，这样家里所有的端都可以享受福利了。
+  
 ![architecture](https://raw.githubusercontent.com/martincai/blogs/master/resources/openwrt-infra.png)
-
+  
 ## 需要的资源
 * 一台墙外的主机。我选择用 Azure 虚机，系统是 Ubuntu 14.04 LTS，选择最小配置的就可以。数据中心选 East Asia，在香港，离我们最近，所以速度会比较好。
 * 一台 OpenWrt 支持的**[路由器](http://wiki.openwrt.org/zh-cn/toh/start)**。需要把路由器的 firmware 刷成 OpenWrt。如果你家现在用的路由器不在这个被支持的列表中，那就得去买个被支持的了。我用的是 TP-Link TL-WR740N v4 硬件版本，从淘宝上买的，连运费一共50元左右。你可以要求淘宝卖家帮你把路由器刷好，超级方便。
-
+  
 ## 安装 OpenVPN 服务器
 在 Azure 上创建虚机后，配置两个 Endpoints: **TCP 22**，**UDP 1194**。
 ![azure-endpoints](https://raw.githubusercontent.com/martincai/blogs/master/resources/azure-endpoints.png)
@@ -176,7 +177,7 @@ tun0      Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00
 sudo bash
 iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
 ```
-
+  
 ## 测试 OpenVPN 连接
 建议在 Windows 上装个 **[OpenVPN Client](https://openvpn.net/index.php/open-source/downloads.html)** 测试一下，也方便调试。
   
@@ -279,12 +280,14 @@ Approximate round trip times in milli-seconds:
 打开浏览器，访问类似 **[https://www.whatismyip.com](https://www.whatismyip.com)** 的网站，看看你现在的 IP 地址是否已经在墙外了。
   
 恭喜你！ OpenVPN 测试成功。
-
+  
 ## 配置 OpenWrt 路由器
 简单介绍一下我的路由器。我用的是中国版的 **TP-Link TL-WR740N v4**，说是 v4，但实际上用的芯片是和国际版 v3 用的一样 – AR7240。所以刷机是必须选择 OpenWrt 针对 TL-WR740N v3 的系统。更重要的一点是一定要用 **JFFS2** 文件格式的系统，因为那是可读写的。不要用 SquashFS 文件格式。建议选择路由器时，除了比对被支持的**[路由器型号](http://wiki.openwrt.org/zh-cn/toh/start)**，还要比对芯片型号。顺便说一下，我试过刷 dd-wrt，它的系统认定了我这个路由器只有 4MB 的 Flash，所以不让我开启 JFFS2 mount 功能，即使路由器已经被改装为 8MB 的 Flash 也没用。
   
 现在，我假设你已经有了一台运行 OpenWrt 系统的路由器，并且打开了 SSH 管理功能。
+  
 ![openwrt-ssh](https://raw.githubusercontent.com/martincai/blogs/master/resources/openwrt-ssh.png)
+  
 用 root 账户通过 SSH 连接到路由器，开始安装和配置。
 ```bash
 opkg update
@@ -303,7 +306,9 @@ EOF
 /etc/init.d/network restart
 ```
 这时网络会断一下，重新连上后登陆管理界面，可以看到这个新建的端口。
+  
 ![openwrt-interfaces](https://raw.githubusercontent.com/martincai/blogs/master/resources/openwrt-interfaces.png)
+  
 然后，需要为 OpenVPN 新建一个 Firewall Zone。指定让所有连接到路由器的设备都走到 OpenVPN 的端口。
 ```bash
 cat >> /etc/config/firewall << EOF
@@ -324,7 +329,9 @@ EOF
 /etc/init.d/firewall restart
 ```
 网络再会断一下，重新连上后登陆管理见面，可以看到这个新建的 Firewall Zone。
+  
 ![openwrt-firewall](https://raw.githubusercontent.com/martincai/blogs/master/resources/openwrt-firewall.png)
+  
 现在，将刚才在 Windows 上做测试时创建的 client1.ovpn 文件转成 Unix 格式，然后上传到路由器。假设路由器地址是 192.168.2.1。
 ```bash
 dos2unix client1.ovpn

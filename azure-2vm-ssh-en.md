@@ -1,11 +1,11 @@
-# 双 Azure 虚机翻墙
-现在翻墙是每个挨踢人的基本技能。市面上翻墙软件和方法很多，今天就八一下用 SSH 配上双 Azure 虚机来翻。这样的好处是：（1）不需要在服务器端装任何东西 （2）双 Azure 虚机，一个在国内，一个在国外，你直接连的是国内 IP 地址，不会被墙而且速度快。Azure 国内和国外的数据中心之间的连接是相当稳定的。
+# Build your own VPN via dual Azure VM setup
+There are plenty of ways to work around the Great Firewall of China. This blog describes how you can accomplish this task using two Azure virtual machines via SSH. The advantages are: (1) no need to install anything on the server; (2) with one VM in China and the other one outside, you directly connect to a local IP address. Note that the network between Azure data centers inside and outside China is usually very stable.
   
 ![azure-ssh-infra](https://raw.githubusercontent.com/martincai/blogs/master/resources/azure-ssh-infra.png)
   
-需要的资源：一台虚机在国内 Azure 上（中国北部或东部都可以），一台虚机在国外 Azure 上（East Asia 数据中心离我们最近）。虚机的配置最低配 A0 就可以，我一直用的是 Ubuntu 14.04 LTS。
+Resources needed are: 1 Azure VM in China, 1 Azure VM outside China. Go with the lowest A0 VM spec is sufficient. I prefer Ubuntu 14.04 LTS.
   
-**第一步：在 Azure 上创建虚机，分别在国内的和国外的 Azure 各建一台**
+**Step #1: create 2 Azure VMs (one in China, one outside China)**
   
 ![azure-create-vm](https://raw.githubusercontent.com/martincai/blogs/master/resources/azure-create-vm.png)
   
@@ -13,38 +13,38 @@
   
 ![azure-vm-config2](https://raw.githubusercontent.com/martincai/blogs/master/resources/azure-vm-config2.png)
   
-假设你已经建好了两台虚机。
-* 国内： azurevm-china.chinacloudapp.cn
-* 国外： azurevm-global.cloudapp.net
+Assume you have created two VMs successfully.
+* China: azurevm-china.chinacloudapp.cn
+* Global: azurevm-global.cloudapp.net
   
-**第二步：安装 SSH 工具，PuTTY 挺好用，我更喜欢用 [Git Bash](http://git-scm.com/downloads)**
+**Step #2: install SSH console on your PC client, PuTTY is pretty good, but I prefer [Git Bash](http://git-scm.com/downloads)**
   
-**第三步：创建 RSA key**
+**Step #3: create RSA key**
   
-SSH 到其中一台虚机上，随便哪台都可以，然后跑以下命令。
+SSH to one of the VMs. It doesn't matter which one, then run the following command.
 ```bash
 cd ~/.ssh
 ssh-keygen –t rsa
 ```
 ![create-idrsa](https://raw.githubusercontent.com/martincai/blogs/master/resources/create-idrsa.png)
   
-将 id_rsa.pub (public key) 复制到 authorized_keys
+Copy id_rsa.pub (public key) to authorized_keys
 ```bash
 cp id_rsa.pub authorized_keys
 ```
 ![copy-key](https://raw.githubusercontent.com/martincai/blogs/master/resources/copy-authkeys.png)
   
-用 SCP 把 id_rsa.pub (public key) 传到另一台虚机上，然后在那里也将 public key 复制的到相同地方 ~/.ssh 下的 authorized_keys
+Use SCP to send id_rsa.pub (public key) to the other VM. Place the file at the same location ~/.ssh/authorized_keys
   
-用 SCP 把 id_rsa (private key) 传到本地PC上。
+Use SCP to send id_rsa (private key) to your client PC.
   
-**第四步：配置本地SSH配置**
+**Step #4: configure SSH locally**
   
-在你的 C:\Users\用户名\ 下建一个新的文件夹 .ssh
+Create a new folder named .ssh under C:\Users\alias\ 
   
-在 C:\Users\用户名\\.ssh 下建一个新文件，用 Notepad 就可以，保存为 config （注意：没有 .txt 后缀）
+Create a new text file under C:\Users\alias\\.ssh using NotePad. Save it as config (note: there is no .txt extension).
   
-将以下内容粘贴在 config 里面并保存
+Paste the following content inside the config file and save it.
 ```bash
 Host proxy-china
   HostName azurevm-china.chinacloudapp.cn
@@ -58,16 +58,16 @@ Host proxy-global
   User azureuser
   ProxyCommand ssh -q proxy-china nc %h %p
 ```
-现在让我们试一下吧。打开 Git Bash，cd 到 C:\Users\用户名\\.ssh 下面，执行以下命令：
+Now, let's give it a try. Open Git Bash, cd C:\Users\alias\\.ssh and enter the following command:
 ```bash
 ssh -D 127.0.0.1:7070 azureuser@proxy-global -i id_rsa
 ```
-这样就在本地机器上打开了 7070 端口的隧道，当然你可以选择任何你喜欢的端口来用。
+This will open port 7070 on your local PC as the tunnel. Of course, you may pick any unused port.
   
-**第五步：配置浏览器，在 Chrome 里用 Proxy SwitchySharp**
+**Step #5: configure your Chrome browser with Proxy SwitchySharp**
   
 ![switchysharp](https://raw.githubusercontent.com/martincai/blogs/master/resources/switchysharp.png)
   
 ![chrome-switchysharp](https://raw.githubusercontent.com/martincai/blogs/master/resources/chrome-switchysharp.png)
   
-这种配置比较稳定。在 YouTube 上看高清视频没有问题。
+This setup is pretty stable.
